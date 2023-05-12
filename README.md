@@ -31,7 +31,7 @@ uses: CryptosoftInc/Dependency-Track@1.0.0
 2) Create a new file named .github/workflows/<file-name>.yaml.
 3) Copy the provided code snippet below and paste it into the newly created YAML file.
 
-### Use below snippet for NPM Projects
+### Use below snippet for Projects
 ```
 name: Your-Workflow-Name
 on: push
@@ -39,8 +39,8 @@ jobs:
   myJob:
     runs-on: ubuntu-latest
     steps:
-    - name:Cryptosoft-SBOM-generator
-      id: Cryptosoft-SBOM-generator
+    - name:Cryptosoft-SBOM-Dependency-Track
+      id: Cryptosoft-SBOM-Dependency-Track
       uses: CryptosoftInc/Dependency-Track@1.0.0
       with:
         dt-url: <your dt url>
