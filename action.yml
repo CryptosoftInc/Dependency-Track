@@ -51,4 +51,4 @@ runs:
             -F "projectVersion=${{ inputs.project-version}}" \
             -F "bom=@sbom.xml"
           fi     
-       shell: bash
+      shell: bash
