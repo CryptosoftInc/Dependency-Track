@@ -13,6 +13,12 @@ inputs:
   project-version:
     description: 'Project version.'
     required: true
+  parent-name:
+    description: 'Parent Project name.'
+    required: true
+  parent-version:
+    description: 'Parent Project Version.'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -23,23 +29,26 @@ runs:
         output: './reports/bom.xml'
     - id: saveBom
       run: |
-        echo -n "$(cat './reports/bom.xml')" > output.xml
+        echo -n "$(cat './reports/bom.xml')" > sbom.xml
       shell: bash
     - run: |
-        echo -n "${{ inputs.dt-url}}"
-        echo -n "${{ inputs.api-key }}"
-        REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-        TAG_REF=${{ github.ref }}
-        if [[ "$TAG_REF" == "refs/tags/"* ]]; then
-          VERSION=$(echo "$TAG_REF" | sed 's/refs\/tags\///')
-        else
-          VERSION="1.0.0"
-        fi
-        curl -k -X POST "${{ inputs.dt-url}}" \
-          -H "Content-Type: multipart/form-data" \
-          -H "X-Api-Key:${{ inputs.api-key }}" \
-          -F "autoCreate=true" \
-          -F "projectName=${{ inputs.project-name}}" \
-          -F "projectVersion=${{ inputs.project-version}}" \
-          -F "bom=@output.xml"
+          if [[ -n "${{ inputs.parent-name }}" && -n "${{ inputs.parent-version }}" ]]; then
+          curl -k -X POST "${{ inputs.dt-url}}" \
+            -H "Content-Type: multipart/form-data" \
+            -H "X-Api-Key:${{ inputs.api-key }}" \
+            -F "autoCreate=true" \
+            -F "projectName=${{ inputs.project-name}}" \
+            -F "projectVersion=${{ inputs.project-version}}" \
+            -F "parentName=${{ inputs.parent-name}}" \
+            -F "parentVersion=${{ inputs.parent-version}}" \
+            -F "bom=@sbom.xml"
+          else
+          curl -k -X POST "${{ inputs.dt-url}}" \
+            -H "Content-Type: multipart/form-data" \
+            -H "X-Api-Key:${{ inputs.api-key }}" \
+            -F "autoCreate=true" \
+            -F "projectName=${{ inputs.project-name}}" \
+            -F "projectVersion=${{ inputs.project-version}}" \
+            -F "bom=@sbom.xml"
+
       shell: bash
