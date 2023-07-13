@@ -50,5 +50,5 @@ runs:
             -F "projectName=${{ inputs.project-name}}" \
             -F "projectVersion=${{ inputs.project-version}}" \
             -F "bom=@sbom.xml"
-
-      shell: bash
+          fi     
+       shell: bash
