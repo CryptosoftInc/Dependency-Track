@@ -1,8 +1,9 @@
 name: Cryptosoft-SBOM-DT
-description: This action builds a CycloneDX Format Software Bill of Materials (SBOM) for a repository and sends it to a OWASP DT server
+description: This action builds a CycloneDX Format Software Bill of Materials (SBOM) for a repository and sends it to an OWASP DT server.
+
 inputs:
   dt-url:
-    description: 'The URL of the Dependency-Track API server to send the SBOM to OWASP Dependency Track Server'
+    description: 'The URL of the Dependency-Track API server to send the SBOM.'
     required: true
   api-key:
     description: 'The API key used to authenticate with the Dependency-Track API server.'
@@ -15,40 +16,42 @@ inputs:
     required: true
   parent-name:
     description: 'Parent Project name.'
-    required: true
+    required: false  # Parent project is optional
   parent-version:
     description: 'Parent Project Version.'
-    required: true
+    required: false  # Parent project version is optional
+
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
-    - id: sbom
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Generate SBOM
+      id: sbom
       uses: AppThreat/cdxgen-action@v1
       with:
-        output: './reports/bom.xml'
-    - id: saveBom
+        output: './sbom.xml'  # Fix path to avoid 'reports/' folder issues
+
+    - name: Upload SBOM to OWASP Dependency-Track
       run: |
-        echo -n "$(cat './reports/bom.xml')" > sbom.xml
-      shell: bash
-    - run: |
-          if [[ -n "${{ inputs.parent-name }}" && -n "${{ inputs.parent-version }}" ]]; then
+        if [[ -n "${{ inputs.parent-name }}" && -n "${{ inputs.parent-version }}" ]]; then
           curl -k -X POST "${{ inputs.dt-url }}/api/v1/bom" \
             -H "Content-Type: multipart/form-data" \
-            -H "X-Api-Key:${{ inputs.api-key }}" \
+            -H "X-Api-Key: ${{ inputs.api-key }}" \
             -F "autoCreate=true" \
-            -F "projectName=${{ inputs.project-name}}" \
-            -F "projectVersion=${{ inputs.project-version}}" \
-            -F "parentName=${{ inputs.parent-name}}" \
-            -F "parentVersion=${{ inputs.parent-version}}" \
+            -F "projectName=${{ inputs.project-name }}" \
+            -F "projectVersion=${{ inputs.project-version }}" \
+            -F "parentName=${{ inputs.parent-name }}" \
+            -F "parentVersion=${{ inputs.parent-version }}" \
             -F "bom=@sbom.xml"
-          else
+        else
           curl -k -X POST "${{ inputs.dt-url }}/api/v1/bom" \
             -H "Content-Type: multipart/form-data" \
-            -H "X-Api-Key:${{ inputs.api-key }}" \
+            -H "X-Api-Key: ${{ inputs.api-key }}" \
             -F "autoCreate=true" \
-            -F "projectName=${{ inputs.project-name}}" \
-            -F "projectVersion=${{ inputs.project-version}}" \
+            -F "projectName=${{ inputs.project-name }}" \
+            -F "projectVersion=${{ inputs.project-version }}" \
             -F "bom=@sbom.xml"
-          fi     
+        fi
       shell: bash
