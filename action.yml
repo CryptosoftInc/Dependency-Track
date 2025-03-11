@@ -29,7 +29,7 @@ runs:
 
     - name: Generate SBOM
       id: sbom
-      uses: AppThreat/cdxgen-action@v1
+      uses: AppThreat/cdxgen-action@v4
       with:
         output: './sbom.xml'  # Fix path to avoid 'reports/' folder issues
 
