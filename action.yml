@@ -27,20 +27,23 @@ runs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Install cdxgen
+    - name: Install cdxgen  # Fix: Ensure cdxgen is installed before use
       run: npm install -g @cyclonedx/cdxgen
+      shell: bash
 
-    - name: Generate SBOM
+    - name: Generate SBOM  # Fix: Use direct cdxgen command instead of deprecated action
       id: sbom
       run: cdxgen -r -o ./sbom.xml
+      shell: bash
 
-    - name: Debug SBOM File
+    - name: Debug SBOM File  # Fix: Added debugging step to check if SBOM is generated
       run: ls -lah && cat sbom.xml || echo "SBOM not generated!"
+      shell: bash
 
     - name: Upload SBOM to OWASP Dependency-Track
       run: |
         if [[ -n "${{ inputs.parent-name }}" && -n "${{ inputs.parent-version }}" ]]; then
-          curl -k -X POST "${{ inputs.dt-url }}/api/v1/bom" \
+          curl -k -X POST "${{ inputs.dt-url }}/api/v1/bom" \  # Fix: Ensure correct URL usage
             -H "Content-Type: multipart/form-data" \
             -H "X-Api-Key: ${{ inputs.api-key }}" \
             -F "autoCreate=true" \
