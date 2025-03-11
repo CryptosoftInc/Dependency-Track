@@ -31,15 +31,16 @@ runs:
       id: sbom
       uses: AppThreat/cdxgen-action@v1
       with:
-        output: './sbom.xml'  # Ensures correct output path
+        output: "./reports/bom.xml"  # Updated output path
 
-    - name: Debug SBOM File  # Checks if SBOM was created
+    - name: Verify SBOM File  # Ensures SBOM was created
       run: |
-        if [ -f "sbom.xml" ]; then
-          ls -lah sbom.xml
-          cat sbom.xml
+        if [ -f "./reports/bom.xml" ]; then
+          echo "SBOM file generated successfully!"
+          ls -lah ./reports/bom.xml
+          cat ./reports/bom.xml
         else
-          echo "SBOM not generated!" && exit 1  # Fails if SBOM is missing
+          echo "SBOM file was NOT generated!" && exit 1
         fi
       shell: bash
 
@@ -54,7 +55,7 @@ runs:
             -F "projectVersion=${{ inputs.project-version }}" \
             -F "parentName=${{ inputs.parent-name }}" \
             -F "parentVersion=${{ inputs.parent-version }}" \
-            -F "bom=@sbom.xml"
+            -F "bom=@./reports/bom.xml"
         else
           curl -k -X POST "${{ inputs.dt-url }}/api/v1/bom" \
             -H "Content-Type: multipart/form-data" \
@@ -62,6 +63,12 @@ runs:
             -F "autoCreate=true" \
             -F "projectName=${{ inputs.project-name }}" \
             -F "projectVersion=${{ inputs.project-version }}" \
-            -F "bom=@sbom.xml"
+            -F "bom=@./reports/bom.xml"
         fi
       shell: bash
+
+    - name: Store SBOM Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: sbom-report
+        path: ./reports/bom.xml
