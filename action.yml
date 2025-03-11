@@ -29,7 +29,7 @@ runs:
 
     - name: Generate SBOM
       id: sbom
-      uses: AppThreat/cdxgen-action@v1
+      uses: AppThreat/cdxgen-action@v11.2.1
       with:
         output: './sbom.xml'  # Ensures correct output path
 
