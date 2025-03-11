@@ -66,9 +66,3 @@ runs:
             -F "bom=@./reports/bom.xml"
         fi
       shell: bash
-
-    - name: Store SBOM Artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: sbom-report
-        path: ./reports/bom.xml
