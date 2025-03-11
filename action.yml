@@ -34,7 +34,13 @@ runs:
         output: './sbom.xml'  # Ensures correct output path
 
     - name: Debug SBOM File  # Checks if SBOM was created
-      run: ls -lah && cat sbom.xml || echo "SBOM not generated!"
+      run: |
+        if [ -f "sbom.xml" ]; then
+          ls -lah sbom.xml
+          cat sbom.xml
+        else
+          echo "SBOM not generated!" && exit 1  # Fails if SBOM is missing
+        fi
       shell: bash
 
     - name: Upload SBOM to OWASP Dependency-Track
